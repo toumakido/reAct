@@ -1,0 +1,18 @@
+The Treasure Vault
+
+This vault contains multiple rooms, each numbered.
+
+Room 10: Empty
+Room 25: Contains old armor
+Room 38: *** THE FINAL PIECE ***
+
+In Room 38, you find the third and final part of the Golden Key!
+
+COMPLETE INFORMATION ABOUT THE GOLDEN KEY:
+- Part 1: Found beneath the Phoenix statue in the Secret Garden (Guardian: Isabella)
+- Part 2: Retrieved from the locked chest in the North Tower (opened by saying "Sir Edmund the Wise")
+- Part 3: Located in Room 38 of the Treasure Vault (Room number calculated as 7 × 5 + 3 = 38)
+
+The Golden Key was created by Master Blacksmith Roland in the year 1523.
+
+Congratulations! You have discovered all three parts of the legendary Golden Key!

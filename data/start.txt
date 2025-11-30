@@ -1,0 +1,9 @@
+Welcome to the Treasure Hunt!
+
+You are standing at the entrance of an ancient castle.
+Your mission is to find the legendary Golden Key.
+
+To begin your journey, you must first visit the library.
+The library contains important information about the castle's history.
+
+Next location: library.txt

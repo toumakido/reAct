@@ -1,0 +1,15 @@
+The Royal Library
+
+You enter a vast library filled with ancient books and scrolls.
+On the main desk, you find a journal written by the castle's architect.
+
+Journal Entry:
+"The Golden Key was crafted in the year 1523 by Master Blacksmith Roland.
+It consists of THREE parts hidden in different locations:
+- Part 1: Hidden in the Secret Garden (see garden.txt)
+- Part 2: Locked in the North Tower (see tower.txt)
+- Part 3: The final piece location is revealed only when you have clues from both the garden and tower."
+
+The architect's signature: Sir Edmund the Wise
+
+Continue to: garden.txt or tower.txt
