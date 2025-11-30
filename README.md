@@ -13,8 +13,30 @@ AWS Bedrock (Claude 3.5 Sonnet) を使用し、ローカルファイルを読み
 
 - Go 1.21以上
 - AWS認証情報の設定（Bedrockへのアクセス権限が必要）
-  - `~/.aws/credentials` または環境変数 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+  - `~/.aws/credentials` または環境変数による認証
   - Bedrock Claudeモデルへのアクセス権限
+
+### AWS認証情報の設定方法
+
+**デフォルトプロファイルを使う場合:**
+- `~/.aws/credentials`の`[default]`が自動的に使用される
+- 特に指定不要
+
+**特定のプロファイルを使う場合:**
+```bash
+# 環境変数で指定
+export AWS_PROFILE=your-profile-name
+
+# または実行時に指定
+AWS_PROFILE=your-profile-name go run . "質問"
+```
+
+**環境変数で直接指定する場合:**
+```bash
+export AWS_ACCESS_KEY_ID=your-access-key
+export AWS_SECRET_ACCESS_KEY=your-secret-key
+export AWS_REGION=us-east-1
+```
 
 ## セットアップ
 
@@ -29,10 +51,13 @@ go build -o react-agent
 ## 使い方
 
 ```bash
-# 直接実行
+# デフォルトプロファイルで実行
 go run . "あなたの質問をここに入力"
 
-# またはビルド後に実行
+# 特定のプロファイルを指定して実行
+AWS_PROFILE=your-profile-name go run . "あなたの質問をここに入力"
+
+# ビルド後に実行
 ./react-agent "あなたの質問をここに入力"
 ```
 
@@ -191,7 +216,13 @@ modelID: "anthropic.claude-3-sonnet-20240229-v1:0"  // Claude 3 Sonnet
 Failed to create Bedrock client: failed to load AWS config
 ```
 
-→ AWS認証情報が正しく設定されているか確認してください。
+**原因と対処法:**
+- AWS認証情報が設定されていない
+  - `~/.aws/credentials`を確認
+  - または環境変数`AWS_PROFILE`を設定
+- プロファイルが存在しない
+  - `aws configure list-profiles`でプロファイル一覧を確認
+  - 正しいプロファイル名を指定
 
 ### Bedrockアクセスエラー
 
@@ -199,7 +230,16 @@ Failed to create Bedrock client: failed to load AWS config
 failed to invoke model: operation error
 ```
 
-→ AWSアカウントでBedrockのClaudeモデルへのアクセスが有効になっているか確認してください。
+**原因と対処法:**
+- Bedrockが利用可能なリージョンではない
+  - Bedrockは特定リージョンのみで利用可能（us-east-1, us-west-2など）
+  - `~/.aws/config`または環境変数`AWS_REGION`でリージョンを設定
+  ```bash
+  export AWS_REGION=us-east-1
+  ```
+- Claudeモデルへのアクセス権限がない
+  - AWS Bedrockコンソールでモデルアクセスを有効化
+  - IAMポリシーでbedrockの権限を確認
 
 ### 最大反復回数到達
 
