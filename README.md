@@ -1,7 +1,7 @@
 # ReAct Agent in Go
 
 ReActアーキテクチャを学ぶためのGo実装サンプル集です。
-AWS Bedrock (Claude 3.5 Sonnet) を使用し、さまざまなReAct実装パターンを試せる構成になっています。
+AWS Bedrockを使用し、さまざまなReAct実装パターンを試せる構成になっています。
 
 ## プロジェクト構造
 
