@@ -1,18 +1,18 @@
-The Treasure Vault
+宝物庫
 
-This vault contains multiple rooms, each numbered.
+この宝物庫には複数の部屋があり、それぞれに番号が付いています。
 
-Room 10: Empty
-Room 25: Contains old armor
-Room 38: *** THE FINAL PIECE ***
+部屋10: 空っぽ
+部屋25: 古い鎧が収められている
+部屋38: *** 最後のパーツ ***
 
-In Room 38, you find the third and final part of the Golden Key!
+部屋38で、あなたは黄金の鍵の3つ目にして最後のパーツを見つけます！
 
-COMPLETE INFORMATION ABOUT THE GOLDEN KEY:
-- Part 1: Found beneath the Phoenix statue in the Secret Garden (Guardian: Isabella)
-- Part 2: Retrieved from the locked chest in the North Tower (opened by saying "Sir Edmund the Wise")
-- Part 3: Located in Room 38 of the Treasure Vault (Room number calculated as 7 × 5 + 3 = 38)
+黄金の鍵に関する完全な情報:
+- パート1: 秘密の庭園の不死鳥の像の下で発見（管理人: イザベラ）
+- パート2: 北の塔の鍵付き宝箱から取り出した（「賢者エドマンド卿」と唱えて開錠）
+- パート3: 宝物庫の部屋38に配置されている（部屋番号は 7 × 5 + 3 = 38 で計算）
 
-The Golden Key was created by Master Blacksmith Roland in the year 1523.
+黄金の鍵は1523年に鍛冶の名匠ローランドによって作られました。
 
-Congratulations! You have discovered all three parts of the legendary Golden Key!
+おめでとうございます！あなたは伝説の黄金の鍵の3つのパーツすべてを発見しました！

@@ -1,9 +1,9 @@
-Welcome to the Treasure Hunt!
+宝探しへようこそ！
 
-You are standing at the entrance of an ancient castle.
-Your mission is to find the legendary Golden Key.
+あなたは古代の城の入り口に立っています。
+あなたの使命は伝説の黄金の鍵を見つけることです。
 
-To begin your journey, you must first visit the library.
-The library contains important information about the castle's history.
+旅を始めるには、まず図書館を訪れる必要があります。
+図書館には城の歴史に関する重要な情報が保管されています。
 
-Next location: library.txt
+次の場所: library.txt

@@ -1,15 +1,15 @@
-The Secret Garden
+秘密の庭園
 
-You discover a hidden garden behind the castle walls.
-Beautiful roses and ancient statues fill this mystical place.
+あなたは城壁の裏に隠された庭園を発見します。
+美しいバラと古代の彫像がこの神秘的な場所を満たしています。
 
-At the center, you find a stone pedestal with an inscription:
+中央には、碑文が刻まれた石の台座があります：
 
-"Part 1 of the Golden Key lies beneath the statue of the Phoenix.
-The Phoenix statue bears the number: 7"
+「黄金の鍵のパート1は不死鳥の像の下に眠る。
+不死鳥の像には数字が刻まれている: 7」
 
-Additional clue carved in stone:
-"When combined with the Tower's number, multiply them and add 3.
-The result reveals the location of Part 3."
+石に刻まれた追加の手がかり:
+「塔の数字と組み合わせ、掛け算して3を足せ。
+その結果がパート3の場所を示す」
 
-Garden Keeper's name: Isabella
+庭園の管理人の名前: イザベラ

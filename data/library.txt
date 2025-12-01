@@ -1,15 +1,15 @@
-The Royal Library
+王立図書館
 
-You enter a vast library filled with ancient books and scrolls.
-On the main desk, you find a journal written by the castle's architect.
+あなたは古代の書物や巻物で満たされた広大な図書館に入ります。
+メインデスクの上に、城の建築家が書いた日誌を見つけます。
 
-Journal Entry:
-"The Golden Key was crafted in the year 1523 by Master Blacksmith Roland.
-It consists of THREE parts hidden in different locations:
-- Part 1: Hidden in the Secret Garden (see garden.txt)
-- Part 2: Locked in the North Tower (see tower.txt)
-- Part 3: The final piece location is revealed only when you have clues from both the garden and tower."
+日誌の記録:
+「黄金の鍵は1523年に鍛冶の名匠ローランドによって作られた。
+この鍵は3つのパーツに分かれており、それぞれ異なる場所に隠されている：
+- パート1: 秘密の庭園に隠されている（garden.txtを参照）
+- パート2: 北の塔に封印されている（tower.txtを参照）
+- パート3: 最後のパーツの場所は、庭園と塔の両方から手がかりを得た時のみ明らかになる」
 
-The architect's signature: Sir Edmund the Wise
+建築家の署名: 賢者エドマンド卿
 
-Continue to: garden.txt or tower.txt
+続きへ: garden.txt または tower.txt

@@ -1,16 +1,16 @@
-The North Tower
+北の塔
 
-You climb the spiral staircase of the ancient North Tower.
-At the top, you find a locked chest with a riddle engraved on it.
+あなたは古代の北の塔の螺旋階段を登ります。
+頂上には、謎が刻まれた鍵のかかった宝箱があります。
 
-Riddle:
-"Part 2 of the Golden Key rests within this chest.
-The chest can only be opened by speaking the architect's name."
+謎:
+「黄金の鍵のパート2はこの宝箱の中に眠る。
+この宝箱は建築家の名前を唱えることでのみ開く」
 
-On the wall, there's a number carved: 5
+壁には数字が刻まれています: 5
 
-Tower Guardian's message:
-"Remember: Multiply my number with the Garden's number, then add 3.
-This will give you the room number in treasure.txt where Part 3 is hidden."
+塔の守護者のメッセージ:
+「忘れるな: 私の数字と庭園の数字を掛け算し、3を足せ。
+それがtreasure.txtの部屋番号であり、パート3が隠されている場所だ」
 
-Tower Height: 5 floors
+塔の高さ: 5階建て
