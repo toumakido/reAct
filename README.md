@@ -1,20 +1,35 @@
 # ReAct Agent in Go
 
-ReActアーキテクチャを学ぶためのシンプルなGo実装サンプルです。
-AWS Bedrock (Claude 3.5 Sonnet) を使用し、ローカルファイルを読み込みながら推論を重ねて質問に答えるエージェントです。
+ReActアーキテクチャを学ぶためのGo実装サンプル集です。
+AWS Bedrock (Claude 3.5 Sonnet) を使用し、さまざまなReAct実装パターンを試せる構成になっています。
 
-## 特徴
+## プロジェクト構造
 
-- **フレームワーク不使用**: LangChainなどのフレームワークを使わず、生のLLM呼び出しとループ処理で実装
-- **ReActパターン**: Thought → Action → Observation のサイクルを可視化
-- **宝探しシナリオ**: 5つの連鎖したファイルから情報を収集し、統合して回答
+```
+reAct/
+├── 01-basic-react/          # 基本的なReAct実装（正規表現パース）
+│   ├── main.go
+│   ├── data/                # この実験専用データ
+│   └── README.md
+│
+├── lib/                     # 共通ライブラリ
+│   ├── bedrock/             # Bedrock API クライアント
+│   │   └── client.go
+│   ├── tools/               # 共通ツール
+│   │   └── readfile.go
+│   └── types/               # 共通型定義
+│       └── types.go
+│
+├── go.mod
+└── README.md                # このファイル
+```
 
-## 前提条件
+## セットアップ
+
+### 前提条件
 
 - Go 1.21以上
 - AWS認証情報の設定（Bedrockへのアクセス権限が必要）
-  - `~/.aws/credentials` または環境変数による認証
-  - Bedrock Claudeモデルへのアクセス権限
 
 ### AWS認証情報の設定方法
 
@@ -28,7 +43,7 @@ AWS Bedrock (Claude 3.5 Sonnet) を使用し、ローカルファイルを読み
 export AWS_PROFILE=your-profile-name
 
 # または実行時に指定
-AWS_PROFILE=your-profile-name go run . "質問"
+AWS_PROFILE=your-profile-name go run ./01-basic-react "質問"
 ```
 
 **環境変数で直接指定する場合:**
@@ -38,175 +53,78 @@ export AWS_SECRET_ACCESS_KEY=your-secret-key
 export AWS_REGION=us-east-1
 ```
 
-## セットアップ
+### インストール
 
 ```bash
 # 依存関係のインストール
 go mod download
-
-# ビルド（オプション）
-go build -o react-agent
 ```
 
-## 使い方
+## 各実装の実行方法
+
+### 01-basic-react: 基本的なReAct実装
 
 ```bash
-# デフォルトプロファイルで実行
-go run . "あなたの質問をここに入力"
+# 実行
+go run ./01-basic-react "黄金の鍵はどこにありますか？"
 
-# 特定のプロファイルを指定して実行
-AWS_PROFILE=your-profile-name go run . "あなたの質問をここに入力"
-
-# ビルド後に実行
-./react-agent "あなたの質問をここに入力"
+# または、ディレクトリに移動して実行
+cd 01-basic-react
+go run . "黄金の鍵の3つのパーツの場所を教えてください"
 ```
 
-## 試すべき質問の例
+詳細は各ディレクトリの`README.md`を参照してください。
 
-### 例1: 基本的な情報収集
+## 実装パターン
+
+### 01-basic-react
+- **特徴**: 正規表現でLLM出力をパースする基本実装
+- **目的**: ReActの仕組みを理解する
+- **パターン**: Thought → Action → Observation のループ
+- **学習ポイント**: フレームワークなしでの生のLLM呼び出し
+
+### 今後追加予定の実装例
+
+- **02-converse-api**: Converse API + Tool Use実装
+- **03-structured-output**: 構造化出力を使った実装
+- **04-multi-tool**: 複数ツールを持つエージェント
+- **05-streaming**: ストリーミングレスポンス対応版
+
+## 共通ライブラリ
+
+### `lib/bedrock`
+- AWS Bedrock RuntimeのクライアントWrapper
+- `NewClient()`: Bedrockクライアントの初期化
+- `InvokeModel()`: Claude APIの呼び出し
+
+### `lib/tools`
+- エージェントが使用するツール群
+- `ReadFile()`: ファイル読み込みツール
+
+### `lib/types`
+- 共通型定義
+- `Message`: LLMとのメッセージ型
+
+## 新しい実装の追加方法
+
+1. 新しいディレクトリを作成
 ```bash
-go run . "Golden Keyはどこにありますか？"
+mkdir 02-your-experiment
+cd 02-your-experiment
 ```
 
-### 例2: 複数ファイルの情報統合が必要
-```bash
-go run . "Golden Keyの3つのパーツはそれぞれどこにありますか？各パーツの場所と守護者や関連情報を教えてください。"
-```
-
-### 例3: 計算が必要
-```bash
-go run . "treasure.txtのどの部屋にPart 3がありますか？その部屋番号はどうやって計算しますか？"
-```
-
-### 例4: 歴史的情報
-```bash
-go run . "Golden Keyは誰が、いつ作りましたか？"
-```
-
-### 例5: 包括的な質問
-```bash
-go run . "宝探しの完全なストーリーを教えてください。誰が関わっていて、どの場所を訪れる必要がありますか？"
-```
-
-## プロジェクト構造
-
-```
-.
-├── main.go           # ReActメインループ
-├── bedrock.go        # AWS Bedrock クライアント
-├── tools.go          # ReadFile ツール実装
-├── go.mod
-├── go.sum
-├── README.md
-└── data/             # 探索対象データ
-    ├── start.txt     # 開始地点
-    ├── library.txt   # 図書館（歴史情報）
-    ├── garden.txt    # 秘密の庭園（Part 1）
-    ├── tower.txt     # 北の塔（Part 2）
-    └── treasure.txt  # 宝物庫（Part 3）
-```
-
-## コードの仕組み
-
-### 1. ReActループ (`main.go`)
-
-```
-ユーザーの質問
-    ↓
-┌─────────────────────────┐
-│  LLMに送信              │
-│  (System Prompt含む)     │
-└─────────────────────────┘
-    ↓
-┌─────────────────────────┐
-│  応答を解析              │
-│  - Thought を表示       │
-│  - Action を検出        │
-└─────────────────────────┘
-    ↓
-┌─────────────────────────┐
-│  Action実行             │
-│  (ReadFile)             │
-└─────────────────────────┘
-    ↓
-┌─────────────────────────┐
-│  Observation として     │
-│  履歴に追加              │
-└─────────────────────────┘
-    ↓
-  Final Answer? ─No→ ループ継続
-    ↓ Yes
-  完了
-```
-
-### 2. System Prompt
-
-LLMに以下のフォーマットを厳密に守るよう指示：
-
-```
-Thought: [次にすべきことの推論]
-Action: ReadFile
-Action Input: [filename]
-```
-
-### 3. アクションの解析
-
-正規表現を使って応答から `Action:` と `Action Input:` を抽出：
-
+2. `main.go`を作成し、`lib/`の共通ライブラリをimport
 ```go
-actionRegex := regexp.MustCompile(`(?i)Action:\s*(\w+)`)
-actionInputRegex := regexp.MustCompile(`(?i)Action Input:\s*(.+?)(?:\n|$)`)
+import (
+    "github.com/toumakido/reAct/lib/bedrock"
+    "github.com/toumakido/reAct/lib/tools"
+    "github.com/toumakido/reAct/lib/types"
+)
 ```
 
-## 実行例の出力
+3. 必要に応じて`data/`ディレクトリを作成
 
-```
-=== Starting ReAct Agent ===
-Question: Golden Keyの3つのパーツの場所を教えてください
-
---- Iteration 1 ---
-Thought: まずstart.txtから開始して、宝探しの情報を収集する必要があります。
-Action: ReadFile
-Action Input: start.txt
-
-Observation: Welcome to the Treasure Hunt!
-...
-
---- Iteration 2 ---
-Thought: 次にlibrary.txtを読んで、Golden Keyの詳細情報を確認します。
-Action: ReadFile
-Action Input: library.txt
-
-Observation: The Royal Library
-...
-
-[続く...]
-
-Final Answer: Golden Keyは3つのパーツに分かれています：
-1. Part 1: 秘密の庭園のPhoenix像の下（守護者：Isabella）
-2. Part 2: 北の塔の鍵付き箱の中（建築家の名前で開錠）
-3. Part 3: 宝物庫のRoom 38（7×5+3=38で計算）
-
-=== Agent Complete ===
-```
-
-## カスタマイズ
-
-### データファイルの変更
-
-`data/` ディレクトリ内のファイルを編集することで、独自のシナリオを作成できます。
-
-### ツールの追加
-
-`tools.go` に新しい関数を追加し、`main.go` の `parseAction` 関数で処理を追加することで、新しいアクションを実装できます。
-
-### モデルの変更
-
-`bedrock.go` の `modelID` を変更することで、異なるClaudeモデルを使用できます：
-
-```go
-modelID: "anthropic.claude-3-sonnet-20240229-v1:0"  // Claude 3 Sonnet
-```
+4. `README.md`でその実装の特徴を説明
 
 ## トラブルシューティング
 
@@ -240,24 +158,6 @@ failed to invoke model: operation error
 - Claudeモデルへのアクセス権限がない
   - AWS Bedrockコンソールでモデルアクセスを有効化
   - IAMポリシーでbedrockの権限を確認
-
-### 最大反復回数到達
-
-```
-max iterations (15) reached without final answer
-```
-
-→ `main.go` の `maxIterations` を増やすか、質問をより明確にしてください。
-
-## 学習ポイント
-
-このプロジェクトから学べること：
-
-1. **ReActパターンの理解**: Thought → Action → Observation のループ
-2. **LLM統合**: フレームワークなしでのLLM呼び出し
-3. **プロンプトエンジニアリング**: System Promptでの振る舞い制御
-4. **パース処理**: LLM出力からの構造化データ抽出
-5. **エラーハンドリング**: ファイルI/OとAPI呼び出しの堅牢な処理
 
 ## ライセンス
 
