@@ -36,11 +36,5 @@ func IsOdd(n int) bool {
 
 // Clamp restricts a value between min and max
 func Clamp(value, min, max int) int {
-	if value < min {
-		return min
-	}
-	if value > max {
-		return max
-	}
-	return value
+	return Min(Max(value, min), max)
 }

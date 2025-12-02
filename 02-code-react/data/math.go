@@ -36,3 +36,18 @@ func Factorial(n int) int {
 	}
 	return result
 }
+
+// AbsoluteAdd returns the absolute value of the sum of two integers
+func AbsoluteAdd(a, b int) int {
+	return Abs(Add(a, b))
+}
+
+// ClampedMultiply multiplies two integers and clamps the result
+func ClampedMultiply(a, b, min, max int) int {
+	return Clamp(Multiply(a, b), min, max)
+}
+
+// SafeFactorial returns factorial using Max to ensure non-negative input
+func SafeFactorial(n int) int {
+	return Factorial(Max(n, 0))
+}

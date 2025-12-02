@@ -38,3 +38,21 @@ func CountVowels(s string) int {
 	}
 	return count
 }
+
+// TruncateString truncates a string to maxLen using Min
+func TruncateString(s string, maxLen int) string {
+	runes := []rune(s)
+	truncLen := Min(len(runes), maxLen)
+	return string(runes[:truncLen])
+}
+
+// RepeatString repeats a string count times, ensuring non-negative count with Max
+func RepeatString(s string, count int) string {
+	safeCount := Max(count, 0)
+	return strings.Repeat(s, safeCount)
+}
+
+// CountDifference returns the absolute difference in lengths of two strings
+func CountDifference(s1, s2 string) int {
+	return Abs(len(s1) - len(s2))
+}
