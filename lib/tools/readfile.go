@@ -17,3 +17,29 @@ func ReadFile(filename string) (string, error) {
 
 	return string(content), nil
 }
+
+// ListFiles lists all files in the data directory
+func ListFiles() (string, error) {
+	entries, err := os.ReadDir("data")
+	if err != nil {
+		return "", fmt.Errorf("failed to list files: %w", err)
+	}
+
+	var files []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			files = append(files, entry.Name())
+		}
+	}
+
+	if len(files) == 0 {
+		return "No files found in data directory", nil
+	}
+
+	result := "Files in data directory:\n"
+	for _, file := range files {
+		result += fmt.Sprintf("- %s\n", file)
+	}
+
+	return result, nil
+}

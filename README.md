@@ -83,13 +83,6 @@ go run . "黄金の鍵の3つのパーツの場所を教えてください"
 - **パターン**: Thought → Action → Observation のループ
 - **学習ポイント**: フレームワークなしでの生のLLM呼び出し
 
-### 今後追加予定の実装例
-
-- **02-converse-api**: Converse API + Tool Use実装
-- **03-structured-output**: 構造化出力を使った実装
-- **04-multi-tool**: 複数ツールを持つエージェント
-- **05-streaming**: ストリーミングレスポンス対応版
-
 ## 共通ライブラリ
 
 ### `lib/bedrock`
