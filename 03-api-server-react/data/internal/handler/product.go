@@ -11,7 +11,7 @@ import (
 )
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
-	products := service.GetAllProducts()
+	products := service.ListProducts()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
 }
@@ -24,7 +24,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := service.GetProductByID(id)
+	product, err := service.FindProductByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -41,7 +41,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product := service.CreateProduct(req)
+	product := service.RegisterProduct(req)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(product)
@@ -61,7 +61,7 @@ func UpdateProductStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.UpdateProductStock(id, req.Stock); err != nil {
+	if err := service.UpdateStock(id, req.Stock); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}

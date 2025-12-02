@@ -168,7 +168,7 @@ func runReActLoop(ctx context.Context, client *bedrock.Client, question string) 
 			observation = fmt.Sprintf("Error: Unknown action '%s'. Available actions: ListFiles, ReadFile", action)
 		}
 
-		fmt.Printf("Observation: %s\n\n", observation)
+		// fmt.Printf("Observation: %s\n\n", observation)
 
 		messages = append(messages, types.Message{
 			Role:    "user",

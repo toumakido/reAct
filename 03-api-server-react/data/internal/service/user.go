@@ -12,11 +12,11 @@ var users = []model.User{
 	{ID: 2, Name: "Bob", Email: "bob@example.com", CreatedAt: time.Now()},
 }
 
-func GetAllUsers() []model.User {
+func ListUsers() []model.User {
 	return users
 }
 
-func GetUserByID(id int) (*model.User, error) {
+func FindUserByID(id int) (*model.User, error) {
 	for _, u := range users {
 		if u.ID == id {
 			return &u, nil
@@ -25,7 +25,7 @@ func GetUserByID(id int) (*model.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 
-func CreateUser(req model.CreateUserRequest) model.User {
+func RegisterUser(req model.CreateUserRequest) model.User {
 	newUser := model.User{
 		ID:        len(users) + 1,
 		Name:      req.Name,

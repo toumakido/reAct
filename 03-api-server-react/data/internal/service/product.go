@@ -26,11 +26,11 @@ var products = []model.Product{
 	},
 }
 
-func GetAllProducts() []model.Product {
+func ListProducts() []model.Product {
 	return products
 }
 
-func GetProductByID(id int) (*model.Product, error) {
+func FindProductByID(id int) (*model.Product, error) {
 	for i := range products {
 		if products[i].ID == id {
 			return &products[i], nil
@@ -39,7 +39,7 @@ func GetProductByID(id int) (*model.Product, error) {
 	return nil, fmt.Errorf("product not found")
 }
 
-func CreateProduct(req model.CreateProductRequest) model.Product {
+func RegisterProduct(req model.CreateProductRequest) model.Product {
 	newProduct := model.Product{
 		ID:          len(products) + 1,
 		Name:        req.Name,
@@ -52,7 +52,7 @@ func CreateProduct(req model.CreateProductRequest) model.Product {
 	return newProduct
 }
 
-func UpdateProductStock(id int, stock int) error {
+func UpdateStock(id int, stock int) error {
 	for i := range products {
 		if products[i].ID == id {
 			products[i].Stock = stock

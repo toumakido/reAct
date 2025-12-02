@@ -11,7 +11,7 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	users := service.GetAllUsers()
+	users := service.ListUsers()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
@@ -24,7 +24,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := service.GetUserByID(id)
+	user, err := service.FindUserByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -41,7 +41,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := service.CreateUser(req)
+	user := service.RegisterUser(req)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
