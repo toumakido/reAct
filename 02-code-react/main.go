@@ -83,25 +83,26 @@ func runReActLoop(ctx context.Context, client *bedrock.Client, question string) 
 	for i := 0; i < maxIterations; i++ {
 		fmt.Printf("--- Iteration %d ---\n", i+1)
 
-		response, err := client.InvokeModel(ctx, systemPrompt, messages)
+		result, err := client.InvokeModel(ctx, systemPrompt, messages)
 		if err != nil {
 			return fmt.Errorf("failed to invoke model: %w", err)
 		}
 
-		fmt.Println(response)
-		fmt.Println()
+		fmt.Println(result.Text)
+		fmt.Printf("\n[Token Usage] Input: %d, Output: %d, Total: %d\n\n",
+			result.InputTokens, result.OutputTokens, result.InputTokens+result.OutputTokens)
 
 		messages = append(messages, types.Message{
 			Role:    "assistant",
-			Content: response,
+			Content: result.Text,
 		})
 
-		if strings.Contains(response, "Final Answer:") {
+		if strings.Contains(result.Text, "Final Answer:") {
 			fmt.Println("=== Agent Complete ===")
 			return nil
 		}
 
-		action, actionInput, found := parseAction(response)
+		action, actionInput, found := parseAction(result.Text)
 		if !found {
 			continue
 		}

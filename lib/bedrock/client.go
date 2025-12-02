@@ -28,6 +28,16 @@ type invokeResponse struct {
 		Type string `json:"type"`
 		Text string `json:"text"`
 	} `json:"content"`
+	Usage struct {
+		InputTokens  int `json:"input_tokens"`
+		OutputTokens int `json:"output_tokens"`
+	} `json:"usage"`
+}
+
+type InvokeResult struct {
+	Text         string
+	InputTokens  int
+	OutputTokens int
 }
 
 // NewClient creates a new Bedrock client
@@ -46,7 +56,7 @@ func NewClient(ctx context.Context) (*Client, error) {
 }
 
 // InvokeModel sends messages to Claude and returns the response
-func (c *Client) InvokeModel(ctx context.Context, systemPrompt string, messages []types.Message) (string, error) {
+func (c *Client) InvokeModel(ctx context.Context, systemPrompt string, messages []types.Message) (*InvokeResult, error) {
 	request := invokeRequest{
 		AnthropicVersion: "bedrock-2023-05-31",
 		MaxTokens:        4096,
@@ -56,7 +66,7 @@ func (c *Client) InvokeModel(ctx context.Context, systemPrompt string, messages 
 
 	requestBody, err := json.Marshal(request)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %w", err)
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
 	output, err := c.client.InvokeModel(ctx, &bedrockruntime.InvokeModelInput{
@@ -65,17 +75,21 @@ func (c *Client) InvokeModel(ctx context.Context, systemPrompt string, messages 
 		Body:        requestBody,
 	})
 	if err != nil {
-		return "", fmt.Errorf("failed to invoke model: %w", err)
+		return nil, fmt.Errorf("failed to invoke model: %w", err)
 	}
 
 	var response invokeResponse
 	if err := json.Unmarshal(output.Body, &response); err != nil {
-		return "", fmt.Errorf("failed to unmarshal response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
 	if len(response.Content) == 0 {
-		return "", fmt.Errorf("no content in response")
+		return nil, fmt.Errorf("no content in response")
 	}
 
-	return response.Content[0].Text, nil
+	return &InvokeResult{
+		Text:         response.Content[0].Text,
+		InputTokens:  response.Usage.InputTokens,
+		OutputTokens: response.Usage.OutputTokens,
+	}, nil
 }
