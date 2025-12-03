@@ -13,6 +13,8 @@ import (
 
 const systemPrompt = `You are a code analysis assistant that reads Go source files and answers questions about API server implementations.
 
+IMPORTANT: Always respond in English. All your Thoughts, Actions, and Final Answers must be in English.
+
 ## Core Principle
 
 You MUST use the Available Tools to retrieve actual information from the file system. NEVER make assumptions or invent information about the codebase. All your reasoning and answers must be based on information obtained through tool usage.
@@ -24,7 +26,6 @@ You MUST use the Available Tools to retrieve actual information from the file sy
 **Usage**:
   Action: ListFiles
   Action Input: ListFiles
-**System Response**: Directory structure is returned in the format "Observation: [tree structure]"
 **When to Use**: When you need to understand the project structure or check which files exist
 
 ### 2. ReadFile
@@ -33,7 +34,6 @@ You MUST use the Available Tools to retrieve actual information from the file sy
   Action: ReadFile
   Action Input: [relative path from data directory]
 **Input Examples**: cmd/api/main.go, internal/handler/user.go, pkg/middleware/auth.go
-**System Response**: Full file contents are returned in the format "Observation: Content of [filename]:\n[contents]"
 **When to Use**: When you need to examine code in a specific file
 
 ## Your Action Flow
@@ -73,29 +73,25 @@ Observation: Content of [filename]:
 
 [Turn 3 - Your Output]
 Thought: I now have all the necessary information to answer the question.
-Final Answer: [Your detailed answer in Japanese]
+Final Answer: [Your detailed answer in English]
 
 ## Final Answer Format
 
-Once you have collected all necessary information, you MUST respond in Japanese with this format:
-Thought: [Reason why you can answer - in English]
-Final Answer: [Your complete and detailed answer to the user's question - MUST be in Japanese]
-
-**CRITICAL**: The Final Answer section MUST be written entirely in Japanese. This is a strict requirement.`
+Once you have collected all necessary information, respond with this format:
+Thought: [Reason why you can answer]
+Final Answer: [Your complete and detailed answer to the user's question]`
 
 const maxIterations = 15
 
 // Config holds the configuration for the code analysis agent
 type Config struct {
 	MaxIterations int
-	Verbose       bool
 }
 
 // DefaultConfig returns the default configuration
 func DefaultConfig() Config {
 	return Config{
 		MaxIterations: maxIterations,
-		Verbose:       true,
 	}
 }
 
@@ -108,28 +104,22 @@ func RunAnalysis(ctx context.Context, client *bedrock.Client, question string, c
 		},
 	}
 
-	if config.Verbose {
-		fmt.Println("=== Starting Code Analysis ReAct Agent ===")
-		fmt.Printf("Question: %s\n\n", question)
-	}
+	fmt.Println("=== Starting Code Analysis ReAct Agent ===")
+	fmt.Printf("Question: %s\n\n", question)
 
 	var finalAnswer string
 
 	for i := 0; i < config.MaxIterations; i++ {
-		if config.Verbose {
-			fmt.Printf("--- Iteration %d ---\n", i+1)
-		}
+		fmt.Printf("--- Iteration %d ---\n", i+1)
 
 		result, err := client.InvokeModel(ctx, systemPrompt, messages)
 		if err != nil {
 			return "", fmt.Errorf("failed to invoke model: %w", err)
 		}
 
-		if config.Verbose {
-			fmt.Println(result.Text)
-			fmt.Printf("\n[Token Usage] Input: %d, Output: %d, Total: %d\n\n",
-				result.InputTokens, result.OutputTokens, result.InputTokens+result.OutputTokens)
-		}
+		fmt.Println(result.Text)
+		fmt.Printf("\n[Token Usage] Input: %d, Output: %d, Total: %d\n\n",
+			result.InputTokens, result.OutputTokens, result.InputTokens+result.OutputTokens)
 
 		messages = append(messages, types.Message{
 			Role:    "assistant",
@@ -138,9 +128,7 @@ func RunAnalysis(ctx context.Context, client *bedrock.Client, question string, c
 
 		if strings.Contains(result.Text, "Final Answer:") {
 			finalAnswer = extractFinalAnswer(result.Text)
-			if config.Verbose {
-				fmt.Println("=== Agent Complete ===")
-			}
+			fmt.Println("=== Agent Complete ===")
 			return finalAnswer, nil
 		}
 
