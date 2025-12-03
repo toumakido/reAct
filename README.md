@@ -12,6 +12,11 @@ reAct/
 │   ├── data/                # この実験専用データ
 │   └── README.md
 │
+├── 03-api-server-react/     # コード分析ReAct実装
+│   ├── main.go
+│   ├── data/                # 分析対象のGoコードサンプル
+│   └── README.md
+│
 ├── lib/                     # 共通ライブラリ
 │   ├── bedrock/             # Bedrock API クライアント
 │   │   └── client.go
@@ -19,6 +24,10 @@ reAct/
 │   │   └── readfile.go
 │   └── types/               # 共通型定義
 │       └── types.go
+│
+├── subagents/               # 再利用可能なsubagent実装
+│   └── codeanalysis/        # コード分析エージェント
+│       └── agent.go
 │
 ├── go.mod
 └── README.md                # このファイル
@@ -83,6 +92,15 @@ go run . "黄金の鍵の3つのパーツの場所を教えてください"
 - **パターン**: Thought → Action → Observation のループ
 - **学習ポイント**: フレームワークなしでの生のLLM呼び出し
 
+### 03-api-server-react
+- **特徴**: 2層ReActアーキテクチャによるコード分析実装
+- **目的**: オーケストレーターとsubagentの分離による拡張可能な設計
+- **構造**:
+  - Layer 1 (Orchestrator): CallSubagentツールでタスク委譲
+  - Layer 2 (Subagent): ListFiles/ReadFileでファイル操作
+- **回答**: 日本語で分析結果を返す
+- **再利用性**: `subagents/codeanalysis`を独立して利用可能
+
 ## 共通ライブラリ
 
 ### `lib/bedrock`
@@ -97,6 +115,29 @@ go run . "黄金の鍵の3つのパーツの場所を教えてください"
 ### `lib/types`
 - 共通型定義
 - `Message`: LLMとのメッセージ型
+
+## Subagents
+
+### `subagents/codeanalysis`
+他のプロジェクトから再利用可能なコード分析エージェント
+
+```go
+import (
+    "github.com/toumakido/reAct/lib/bedrock"
+    "github.com/toumakido/reAct/subagents/codeanalysis"
+)
+
+// 使い方
+client, _ := bedrock.NewClient(ctx)
+config := codeanalysis.DefaultConfig()
+answer, err := codeanalysis.RunAnalysis(ctx, client, "質問内容", config)
+```
+
+**機能:**
+- ReActループによるコードベース探索
+- ListFiles/ReadFileツールによるファイル操作
+- 日本語での分析結果返却
+- カスタマイズ可能な設定（最大イテレーション数、詳細出力など）
 
 ## 新しい実装の追加方法
 

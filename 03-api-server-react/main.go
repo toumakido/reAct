@@ -9,73 +9,85 @@ import (
 	"strings"
 
 	"github.com/toumakido/reAct/lib/bedrock"
-	"github.com/toumakido/reAct/lib/tools"
 	"github.com/toumakido/reAct/lib/types"
+	"github.com/toumakido/reAct/subagents/codeanalysis"
 )
 
-const systemPrompt = `You are a code analysis assistant that reads Go source files and answers questions about API server implementations.
+const systemPrompt = `You are a code analysis orchestrator that delegates tasks to specialized subagents.
 
 ## Core Principle
 
-You MUST use the Available Tools to retrieve actual information from the file system. NEVER make assumptions or invent information about the codebase. All your reasoning and answers must be based on information obtained through tool usage.
+You MUST delegate code analysis tasks to the appropriate subagent. NEVER make assumptions or invent information about the codebase. All analysis should be performed by subagents that have access to the actual files.
 
 ## Available Tools
 
-### 1. ListFiles
-**Function**: Displays all files and directories under the data directory in tree format
+### CallSubagent
+**Function**: Delegates code analysis tasks to a specialized ReAct subagent
 **Usage**:
-  Action: ListFiles
-  Action Input: ListFiles
-**System Response**: Directory structure is returned in the format "Observation: [tree structure]"
-**When to Use**: When you need to understand the project structure or check which files exist
+  Action: CallSubagent
+  Action Input: codeanalysis|[your question in Japanese or English]
+**Input Format**: "subagent_name|question"
 
-### 2. ReadFile
-**Function**: Reads the contents of a specified Go source file
-**Usage**:
-  Action: ReadFile
-  Action Input: [relative path from data directory]
-**Input Examples**: cmd/api/main.go, internal/handler/user.go, pkg/middleware/auth.go
-**System Response**: Full file contents are returned in the format "Observation: Content of [filename]:\n[contents]"
-**When to Use**: When you need to examine code in a specific file
+**Available Subagents**:
+
+#### codeanalysis
+Performs comprehensive code analysis using autonomous ReAct loop with file exploration tools.
+
+**Capabilities:**
+- Explores directory structure (ListFiles tool)
+- Reads Go source files (ReadFile tool)
+- Analyzes code structure, relationships, and patterns
+- Synthesizes information across multiple files
+- Provides detailed explanations in Japanese
+
+**When to Use:**
+- Any question about the codebase structure
+- Understanding API endpoints, handlers, or middleware
+- Analyzing code relationships and architecture
+- Explaining how specific features are implemented
+- Any code-related query requiring file access
+
+**System Response:**
+The subagent autonomously explores the codebase and returns a detailed answer in Japanese.
+Format: "Observation: [Japanese answer]"
+
+**Example Usage:**
+Action: CallSubagent
+Action Input: codeanalysis|このAPIサーバーのエンドポイントを教えてください
 
 ## Your Action Flow
 
-**Step 1: Reasoning and Action Decision**
-Think about what to do next and output these 3 lines:
-Thought: [What you want to know and why you're using this tool]
-Action: [ListFiles or ReadFile]
-Action Input: [Input to pass to the tool]
+**Step 1: Analyze the Question**
+Understand what the user is asking and determine that you need to use the codeanalysis subagent.
+
+**Step 2: Delegate to Subagent**
+Output these 3 lines:
+Thought: [Why you're delegating this to the codeanalysis subagent]
+Action: CallSubagent
+Action Input: codeanalysis|[the user's question or a reformulated version]
 
 **IMPORTANT**: After outputting these 3 lines, you MUST stop there. NEVER generate Observation yourself.
 
-**Step 2: Wait for System Response**
-The system will provide "Observation: [result]". This is NOT something you generate.
+**Step 3: Wait for Subagent Response**
+The system will execute the subagent and provide "Observation: [Japanese answer]". This is NOT something you generate.
 
-**Step 3: Next Action or Answer**
-After receiving the Observation, either return to Step 1 or provide a final answer if you have sufficient information.
+**Step 4: Provide Final Answer**
+Use the subagent's response to provide your final answer to the user.
 
 ## Complete Execution Example
 
 [Turn 1 - Your Output]
-Thought: I need to check the directory structure first to understand the project layout.
-Action: ListFiles
-Action Input: ListFiles
+Thought: This question about API endpoints requires the codeanalysis subagent to explore the codebase and read relevant files.
+Action: CallSubagent
+Action Input: codeanalysis|このAPIサーバーが提供しているエンドポイントを全て教えてください
 
 [System Response]
-Observation: [The system will return the actual directory structure]
+Observation: このAPIサーバーは以下のエンドポイントを提供しています：
+[Detailed Japanese explanation from subagent]
 
 [Turn 2 - Your Output]
-Thought: Based on the structure, I should read a specific file to get more details.
-Action: ReadFile
-Action Input: [path to relevant file]
-
-[System Response]
-Observation: Content of [filename]:
-[The system will return the actual file contents]
-
-[Turn 3 - Your Output]
-Thought: I now have all the necessary information to answer the question.
-Final Answer: [Your detailed answer based on the information gathered]
+Thought: The codeanalysis subagent has provided a comprehensive answer.
+Final Answer: [Pass through or summarize the subagent's answer]
 
 ## Final Answer Format
 
@@ -144,28 +156,41 @@ func runReActLoop(ctx context.Context, client *bedrock.Client, question string) 
 
 		var observation string
 		switch action {
-		case "ListFiles":
-			result, err := tools.ListFilesTree()
-			if err != nil {
-				observation = fmt.Sprintf("Error listing files: %v", err)
-			} else {
-				observation = result
-			}
-
-		case "ReadFile":
+		case "CallSubagent":
 			if actionInput == "" {
-				observation = "Error: ReadFile requires a filename as Action Input"
+				observation = "Error: CallSubagent requires 'subagent_name|question' as Action Input"
 			} else {
-				content, err := tools.ReadFile(actionInput)
-				if err != nil {
-					observation = fmt.Sprintf("Error reading file: %v", err)
+				parts := strings.SplitN(actionInput, "|", 2)
+				if len(parts) != 2 {
+					observation = "Error: CallSubagent input format should be 'subagent_name|question'"
 				} else {
-					observation = fmt.Sprintf("Content of %s:\n%s", actionInput, content)
+					subagentName := strings.TrimSpace(parts[0])
+					subagentQuestion := strings.TrimSpace(parts[1])
+
+					switch subagentName {
+					case "codeanalysis":
+						fmt.Printf("\n>>> Delegating to codeanalysis subagent...\n")
+						fmt.Printf(">>> Question: %s\n\n", subagentQuestion)
+
+						config := codeanalysis.DefaultConfig()
+						config.Verbose = false
+
+						answer, err := codeanalysis.RunAnalysis(ctx, client, subagentQuestion, config)
+						if err != nil {
+							observation = fmt.Sprintf("Error calling codeanalysis subagent: %v", err)
+						} else {
+							observation = answer
+							fmt.Printf("\n>>> Subagent completed\n\n")
+						}
+
+					default:
+						observation = fmt.Sprintf("Error: Unknown subagent '%s'. Available subagents: codeanalysis", subagentName)
+					}
 				}
 			}
 
 		default:
-			observation = fmt.Sprintf("Error: Unknown action '%s'. Available actions: ListFiles, ReadFile", action)
+			observation = fmt.Sprintf("Error: Unknown action '%s'. Available actions: CallSubagent", action)
 		}
 
 		// fmt.Printf("Observation: %s\n\n", observation)
