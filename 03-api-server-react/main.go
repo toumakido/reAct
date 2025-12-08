@@ -9,11 +9,15 @@ import (
 	"strings"
 
 	"github.com/toumakido/reAct/lib/bedrock"
+	"github.com/toumakido/reAct/lib/tools"
 	"github.com/toumakido/reAct/lib/types"
 	"github.com/toumakido/reAct/subagents/codeanalysis"
 )
 
-const systemPrompt = `You are a code analysis orchestrator that delegates tasks to specialized subagents.
+func buildSystemPrompt(subagents []tools.SubagentMetadata) string {
+	var builder strings.Builder
+
+	builder.WriteString(`You are a code analysis orchestrator that delegates tasks to specialized subagents.
 
 ## Core Principle
 
@@ -25,44 +29,30 @@ You MUST delegate code analysis tasks to the appropriate subagent. NEVER make as
 **Function**: Delegates code analysis tasks to a specialized ReAct subagent
 **Usage**:
   Action: CallSubagent
-  Action Input: codeanalysis|[your question in English]
+  Action Input: <subagent_name>|[your question in English]
 **Input Format**: "subagent_name|question"
 
 **IMPORTANT**: All questions to subagents MUST be in English.
 
 **Available Subagents**:
 
-#### codeanalysis
-Performs comprehensive code analysis using autonomous ReAct loop with file exploration tools.
+`)
 
-**Capabilities:**
-- Explores directory structure (ListFiles tool)
-- Reads Go source files (ReadFile tool)
-- Analyzes code structure, relationships, and patterns
-- Synthesizes information across multiple files
-- Responds in any language (not limited to Japanese)
+	// Dynamically add subagent information
+	for _, subagent := range subagents {
+		builder.WriteString(tools.FormatSubagentInfo(subagent))
+	}
 
-**When to Use:**
-- Any question about the codebase structure
-- Understanding API endpoints, handlers, or middleware
-- Analyzing code relationships and architecture
-- Explaining how specific features are implemented
-- Any code-related query requiring file access
-
-**Example Usage:**
-Action: CallSubagent
-Action Input: codeanalysis|What endpoints does this API server provide?
-
-## Your Action Flow
+	builder.WriteString(`## Your Action Flow
 
 **Step 1: Analyze the Question**
-Understand what the user is asking and determine that you need to use the codeanalysis subagent.
+Understand what the user is asking and determine which subagent is most appropriate for the task.
 
 **Step 2: Delegate to Subagent**
 Output these 3 lines:
-Thought: [Why you're delegating this to the codeanalysis subagent]
+Thought: [Why you're delegating this to the chosen subagent]
 Action: CallSubagent
-Action Input: codeanalysis|[the user's question translated to English or a reformulated English version]
+Action Input: <subagent_name>|[the user's question translated to English or a reformulated English version]
 
 **CRITICAL**: The question MUST be in English. If the user asked in Japanese, translate it to English first.
 
@@ -99,7 +89,10 @@ Once you have collected all necessary information, respond in this format:
 Thought: [Reason why you can answer]
 Final Answer: [Your complete and detailed answer to the user's question IN JAPANESE]
 
-**CRITICAL**: Final Answer MUST always be in Japanese, regardless of the language of user's question or subagent's response.`
+**CRITICAL**: Final Answer MUST always be in Japanese, regardless of the language of user's question or subagent's response.`)
+
+	return builder.String()
+}
 
 const maxIterations = 15
 
@@ -112,17 +105,30 @@ func main() {
 
 	ctx := context.Background()
 
+	// Load subagent metadata
+	subagents, err := tools.LoadSubagentMetadata("../subagents")
+	if err != nil {
+		log.Fatalf("Failed to load subagent metadata: %v", err)
+	}
+
+	if len(subagents) == 0 {
+		log.Fatal("No subagents found. Please ensure subagents directory contains metadata.md files")
+	}
+
+	// Build dynamic system prompt
+	systemPrompt := buildSystemPrompt(subagents)
+
 	client, err := bedrock.NewClient(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create Bedrock client: %v", err)
 	}
 
-	if err := runReActLoop(ctx, client, question); err != nil {
+	if err := runReActLoop(ctx, client, question, systemPrompt); err != nil {
 		log.Fatalf("Error during ReAct loop: %v", err)
 	}
 }
 
-func runReActLoop(ctx context.Context, client *bedrock.Client, question string) error {
+func runReActLoop(ctx context.Context, client *bedrock.Client, question string, systemPrompt string) error {
 	messages := []types.Message{
 		{
 			Role:    "user",
